@@ -1,0 +1,6 @@
+DirectoryObjectTable    Create an R variable table using a directory
+dbexists.DirectoryTable
+                        Methods for accessing DirectoryTable objects
+UserDatabase            Create user-defined attach()able table
+dbmethods               Methods for user-defined tables
+unbound                 Get the object representing an unbound variable
