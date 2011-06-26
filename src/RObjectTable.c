@@ -26,9 +26,10 @@ RClosureTable_exists(const char * const name, Rboolean *canCache, R_ObjectTable 
  if(tb->active == FALSE)
     return(FALSE);
 
- tb->active = FALSE;
+ // muahahahahhaha
+ //tb->active = FALSE;
  val = RClosureTable_callWithName(R_DB_EXISTS, name, tb);
- tb->active = TRUE;
+ //tb->active = TRUE;
 
  return(LOGICAL(val)[0]);
 }
@@ -40,9 +41,10 @@ RClosureTable_get(const char * const name, Rboolean *canCache, R_ObjectTable *tb
  if(tb->active == FALSE)
     return(R_UnboundValue);
 
- tb->active = FALSE;
+ // muahahahahhaha
+ //tb->active = FALSE;
  val = RClosureTable_callWithName(R_DB_GET, name, tb);
- tb->active = TRUE;
+ //tb->active = TRUE;
  return(val);
 }
 
@@ -119,7 +121,8 @@ RClosureTable_callWithName(R_ObjectTableAction handlerType, const char * const n
     val = R_tryEval(e, NULL, &errorOccurred);
 #endif
     if(errorOccurred) {
-	return(NEW_LOGICAL(1));
+        UNPROTECT(1);
+	return(R_UnboundValue);
     }
     UNPROTECT(1);
     return(val);
@@ -136,7 +139,7 @@ SEXP
 newRClosureTable(SEXP handlers)
 {
  R_ObjectTable *tb;
- SEXP val, klass;
+ SEXP val, klass, env;
 
   tb = (R_ObjectTable *) malloc(sizeof(R_ObjectTable));
   if(!tb)
@@ -161,9 +164,21 @@ newRClosureTable(SEXP handlers)
 
   PROTECT(val = R_MakeExternalPtr(tb, Rf_install("UserDefinedDatabase"), R_NilValue));
   PROTECT(klass = NEW_CHARACTER(1));
-   SET_STRING_ELT(klass, 0, COPY_TO_USER_STRING("UserDefinedDatabase"));
-   SET_CLASS(val, klass);
+
+  SET_STRING_ELT(klass, 0, COPY_TO_USER_STRING("UserDefinedDatabase"));
+  SET_CLASS(val, klass);
+
+  env = allocSExp(ENVSXP);
+  SET_HASHTAB(env, val);
+  SET_ENCLOS(env, R_GlobalEnv);
+  setAttrib(env, R_ClassSymbol, getAttrib(HASHTAB(env), R_ClassSymbol));
+
   UNPROTECT(2);
 
-  return(val);
+  return(env);
 }
+
+SEXP getUnbound(void) {
+    return R_UnboundValue;
+}
+

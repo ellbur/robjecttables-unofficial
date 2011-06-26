@@ -11,3 +11,10 @@ function(db)
 
    db
 }
+
+getUnbound <-
+function()
+{
+    .Call('getUnbound')
+}
+
